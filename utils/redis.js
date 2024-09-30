@@ -1,5 +1,5 @@
 import { createClient } from 'redis';
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 
 /**
  * Represents a Redis client for interacting with a Redis database.
