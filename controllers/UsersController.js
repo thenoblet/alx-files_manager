@@ -40,7 +40,7 @@ class UsersController {
       const newUser = await dbClient.db.collection('users').insertOne({ email, password: hashedPassword });
       return response.status(201).json({ id: newUser.insertedId, email });
     } catch (error) {
-      return HTTPError.internalServerError(response, 'An error occurred while creating new user');
+      return HTTPError.internalServerError(response, 'Error: Unable to create user.');
     }
   }
 }
