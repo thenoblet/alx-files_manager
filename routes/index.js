@@ -8,11 +8,11 @@
  * requests and responses.
  *
  */
-
 import { Router } from 'express';
 import AppController from '../controllers/AppController';
 import UsersController from '../controllers/UsersController';
 import AuthController from '../controllers/AuthController';
+import FilesController from '../controllers/FilesController';
 
 const router = Router();
 
@@ -75,5 +75,15 @@ router.get('/disconnect', async (request, response) => AuthController.getDisconn
  * @returns {Promise<void>} A promise that resolves when the response is sent.
  */
 router.get('/users/me', async (request, response) => UsersController.getMe(request, response));
+
+/**
+ * @route POST /files
+ * @description Route to upload a new file to the system.
+ * @async
+ * @param {Object} request - Express request object containing the file data in the body.
+ * @param {Object} response - Express response object.
+ * @returns {Promise<void>} A promise that resolves when the response is sent.
+ */
+router.post('/files', async (request, response) => FilesController.postUpload(request, response));
 
 export default router;
