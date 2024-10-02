@@ -30,23 +30,17 @@ class UsersController {
       return HTTPError.badRequest(response, 'Missing password');
     }
 
-    try {
-      const userEmail = await dbClient.db.collection('users').findOne({ email });
-      if (userEmail) {
-        return HTTPError.badRequest(response, 'Already exists');
-      }
+    const userEmail = await dbClient.db.collection('users').findOne({ email });
+    if (userEmail) {
+      return HTTPError.badRequest(response, 'Already exists');
+    }
 
+    try {
       const hashedPassword = hashPassword(password);
       const newUser = await dbClient.db.collection('users').insertOne({ email, password: hashedPassword });
       return response.status(201).json({ id: newUser.insertedId, email });
     } catch (error) {
-      console.error(error);
-
-      // Distinguish between different error messages
-      if (error.message.includes('Unable to hash password')) {
-        return HTTPError.internalServerError(response, 'Error: could not hash password');
-      }
-      return HTTPError.internalServerError(response, 'Error: could not create user');
+      return HTTPError.internalServerError(response, 'An error occurred while creating new user');
     }
   }
 }
