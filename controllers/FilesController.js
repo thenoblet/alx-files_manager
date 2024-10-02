@@ -209,6 +209,43 @@ static async _publishOrUnpublish(req, res, isPublic) {
     }
   }
 
+  static async getFile(req, res) {
+    try {
+      const dbUser = await UsersController.getUserData(req);
+      const dbFile = await dbClient.db.collection('files').findOne({
+        userId: dbUser._id,
+        _id: ObjectId(req.params.id),
+      });
+
+      if (!dbFile) {
+        return HTTPError.notFound(res);
+      }
+
+      if (dbFile.type === 'folder') {
+        return HTTPError.badRequest(res, "A folder doesn't have content");
+      }
+
+      let localFilePath = dbFile.localPath;
+
+      const { size } = req.query;
+      if (size && ['100', '250', '500'].includes(size)) {
+        localFilePath = `${localFilePath}_{size}`;
+      }
+      const mimeType = mime.lookup(dbFile.name) || 'application/octet-stream';
+      res.setHeader('Content-Type', mimeType);
+      fs.readFile(localFilePath, (err, data) => {
+        if (err) {
+          return HTTPError.notFound(res);
+        }
+        return res.status(200).send(data);
+      });
+
+
+    } catch (error) {
+      return HTTPError.unauthorized(res);
+    }
+  }
+
   /**
 	 * Validates the file upload request by checking for missing fields like
 	 * `name`, `type`, and `data`.
