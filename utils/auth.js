@@ -34,8 +34,8 @@ function generateAuthToken() {
   try {
     return uuidv4();
   } catch (error) {
-    console.error(`Failed to generate auth. token: ${error.message}`);
-    throw new Error('Failed to generate authentication token.');
+    console.error(`Failed to generate uuid: ${error.message}`);
+    throw new Error('Failed to generate uuid');
   }
 }
 
