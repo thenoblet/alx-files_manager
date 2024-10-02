@@ -40,6 +40,6 @@ router.get('/stats', async (request, response) => AppController.getStats(request
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} A promise that resolves when the response is sent.
  */
-router.post('users', async (request, response) => UsersController.postNew(request, response));
+router.post('/users', async (request, response) => UsersController.postNew(request, response));
 
 export default router;
