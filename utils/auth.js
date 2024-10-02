@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Hashes a password using the SHA-1 algorithm.
@@ -21,4 +22,36 @@ function hashPassword(password) {
   }
 }
 
-export default hashPassword;
+/**
+ * Generates a random authentication token using UUID v4.
+ *
+ * This function generates and returns a new unique authentication token.
+ *
+ * @returns {string} The generated UUID token.
+ * @throws {Error} If token generation fails.
+ */
+function generateAuthToken() {
+  try {
+    return uuidv4();
+  } catch (error) {
+    console.error(`Failed to generate auth. token: ${error.message}`);
+    throw new Error('Failed to generate authentication token.');
+  }
+}
+
+/**
+ * Verifies if a plain password matches the hashed password.
+ *
+ * This function hashes the plain password and compares it with the
+ * provided hashed password to determine if they match.
+ *
+ * @param {string} plainPassword - The plain password to verify.
+ * @param {string} hashedPassword - The hashed password to compare against.
+ * @returns {boolean} True if the passwords match, false otherwise.
+ */
+function verifyPassword(plainPassword, hashedPassword) {
+  const hashedPlainPassword = hashPassword(plainPassword);
+  return hashedPlainPassword === hashedPassword;
+}
+
+export { hashPassword, generateAuthToken, verifyPassword };
