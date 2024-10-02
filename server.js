@@ -7,9 +7,6 @@
  * routing, and starts the server on a specified port. It uses routes
  * defined in the routes/index module.
  *
- * @module app
- * @requires express
- * @requires ./routes/index
  */
 
 import express from 'express';
