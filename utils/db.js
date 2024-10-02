@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+
+// Implement a class DBClient that will be used to interact with the MongoDB database
+
 import { MongoClient } from 'mongodb';
 
 /**
@@ -8,7 +12,7 @@ import { MongoClient } from 'mongodb';
  * users and files. It uses the MongoClient from the mongodb library to
  * manage connections and interact with the database.
  */
-class DBclient {
+class DBClient {
   constructor() {
     const host = process.env.DB_HOST || 'localhost';
     const port = process.env.DB_PORT || 27017;
@@ -92,5 +96,6 @@ class DBclient {
   }
 }
 
-const dbClient = new DBclient();
+const dbClient = new DBClient();
+
 export default dbClient;
