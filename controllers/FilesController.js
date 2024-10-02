@@ -101,15 +101,11 @@ class FilesController {
     }
   }
 
- 
-
   static async getIndex(request, response) {
     try {
       const dbUser = await UsersController.getUserData(request);
       let parentId = request.query.parentId;
-	  console.log(`PARENT_ID: ${parentId}`)
       const page = parseInt(request.query.page, 10) || 0;
-	  console.log(`PAGE: ${page}`)
       const itemsPerPage = 20;
 
       // Ensure parentId is either a number or a valid string
@@ -127,9 +123,6 @@ class FilesController {
           ...(parentId !== undefined ? { parentId } : {}),
         };
 
-		console.log("MATCH STAGE:")
-		console.log(matchStage)
-
         const dbFiles = await dbClient.db
           .collection('files')
           .aggregate([
@@ -139,13 +132,11 @@ class FilesController {
           ])
           .toArray();
 
-		  console.log(`DB FILES: ${dbFiles}`)
         // Remove the localPath field and rename _id to id for each file object
 		const sanitizedFiles = dbFiles.map(({ _id, localPath, ...rest }) => ({
 			id: _id,
 			...rest,
 		  }));
-		console.log(`SANITIZED FILES: ${sanitizedFiles}`)
 
         return response.status(200).json(sanitizedFiles);
       } catch (error) {
