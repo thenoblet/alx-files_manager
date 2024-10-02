@@ -86,4 +86,23 @@ router.get('/users/me', async (request, response) => UsersController.getMe(reque
  */
 router.post('/files', async (request, response) => FilesController.postUpload(request, response));
 
+/**
+ * @route GET /files/:id
+ * @description Route to retrieve a file by its ID.
+ * @param {Object} request - request object containing the file ID in the request parameters.
+ * @param {Object} response - Express response object.
+ * @returns {Promise<void>} A promise that resolves when the response is sent.
+ */
+router.get('/files/:id', async (request, response) => FilesController.getShow(request, response));
+
+/**
+ * @route GET /files
+ * @description Route to retrieve a list of all files available in the system.
+ * @async
+ * @param {Object} request - Express request object.
+ * @param {Object} response - Express response object.
+ * @returns {Promise<void>} A promise that resolves when the response is sent.
+ */
+router.get('/files', async (request, response) => FilesController.getIndex(request, response));
+
 export default router;
