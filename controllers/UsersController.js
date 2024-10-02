@@ -32,7 +32,7 @@ class UsersController {
 
     const userEmail = await dbClient.db.collection('users').findOne({ email });
     if (userEmail) {
-      return HTTPError.badRequest(response, 'Already exists');
+      return HTTPError.badRequest(response, 'Already exist');
     }
 
     try {
