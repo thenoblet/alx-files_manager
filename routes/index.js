@@ -12,6 +12,7 @@
 import { Router } from 'express';
 import AppController from '../controllers/AppController';
 import UsersController from '../controllers/UsersController';
+import AuthController from '../controllers/AuthController';
 
 const router = Router();
 
@@ -41,5 +42,38 @@ router.get('/stats', async (request, response) => AppController.getStats(request
  * @returns {Promise<void>} A promise that resolves when the response is sent.
  */
 router.post('/users', async (request, response) => UsersController.postNew(request, response));
+
+/**
+ * Route to authenticate a user.
+ *
+ * @name GET /connect
+ * @function
+ * @param {Object} request - Express request object.
+ * @param {Object} response - Express response object.
+ * @returns {Promise<void>} A promise that resolves when the response is sent.
+ */
+router.get('/connect', async (request, response) => AuthController.getConnect(request, response));
+
+/**
+ * Route to disconnect a user.
+ *
+ * @name GET /disconnect
+ * @function
+ * @param {Object} request - Express request object.
+ * @param {Object} response - Express response object.
+ * @returns {Promise<void>} A promise that resolves when the response is sent.
+ */
+router.get('/disconnect', async (request, response) => AuthController.getDisconnect(request, response));
+
+/**
+ * Route to retrieve the currently authenticated user.
+ *
+ * @name GET /users/me
+ * @function
+ * @param {Object} request - Express request object.
+ * @param {Object} response - Express response object.
+ * @returns {Promise<void>} A promise that resolves when the response is sent.
+ */
+router.get('/users/me', async (request, response) => UsersController.getMe(request, response));
 
 export default router;
