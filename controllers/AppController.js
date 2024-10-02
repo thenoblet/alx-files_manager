@@ -1,6 +1,5 @@
-#!/usr/bin/env node
 import dbClient from '../utils/db';
-import RedisClient from '../utils/redis';
+import redisClient from '../utils/redis';
 import HTTPError from '../utils/httpErrors';
 
 /**
@@ -23,7 +22,7 @@ class AppController {
  */
   static async getStatus(request, response) {
     try {
-      return response.status(200).json({ redis: RedisClient.isAlive(), db: dbClient.isAlive() });
+      return response.status(200).json({ redis: redisClient.isAlive(), db: dbClient.isAlive() });
     } catch (error) {
       console.log(`Error getting status of redis or mongodb: ${error}`);
       return HTTPError.internalServerError(response);
