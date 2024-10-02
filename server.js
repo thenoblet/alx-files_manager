@@ -16,7 +16,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Use the defined routes
-app.use('/', routes);
+app.use(routes);
 app.use(express.json());
 
 // Starts the server

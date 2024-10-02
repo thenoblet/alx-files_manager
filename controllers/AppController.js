@@ -1,3 +1,6 @@
+/**
+ * AppController module representing the controller for the application.
+ */
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 import HTTPError from '../utils/httpErrors';
@@ -24,7 +27,6 @@ class AppController {
     try {
       return response.status(200).json({ redis: redisClient.isAlive(), db: dbClient.isAlive() });
     } catch (error) {
-      console.log(`Error getting status of redis or mongodb: ${error}`);
       return HTTPError.internalServerError(response);
     }
   }
