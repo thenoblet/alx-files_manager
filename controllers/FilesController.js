@@ -4,6 +4,7 @@ import fs from 'fs';
 import UsersController from './UsersController';
 import HTTPError from '../utils/httpErrors';
 import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 import { generateAuthToken as generateUUID } from '../utils/auth';
 import { cipherTextToPlaintext, saveToLocalFileSystem } from '../utils/misc';
 
@@ -65,6 +66,95 @@ class FilesController {
     }
 
     return instance.createFile(response, fileDocument, data);
+  }
+
+
+  static async getShow(request, response) {
+    const token = request.headers['x-token'];
+    const userId = await redisClient.get(`auth_${token}`);
+    
+    if (!userId) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { id } = request.params;
+
+    try {
+      const file = await dbClient.db.collection('files').findOne({
+        _id: ObjectId(id),
+        userId: ObjectId(userId),
+      });
+
+      if (!file) {
+        return response.status(404).json({ error: 'Not found' });
+      }
+
+	  const { localPath, _id, ...rest } = file;
+	  const sanitizedFile = {
+		id: _id.toString(), // Convert _id to string for consistency
+		...rest,
+	  };
+
+      return response.status(200).json(sanitizedFile);
+    } catch (err) {
+      return response.status(500).json({ error: 'Server error' });
+    }
+  }
+
+ 
+
+  static async getIndex(request, response) {
+    try {
+      const dbUser = await UsersController.getUserData(request);
+      let parentId = request.query.parentId;
+	  console.log(`PARENT_ID: ${parentId}`)
+      const page = parseInt(request.query.page, 10) || 0;
+	  console.log(`PAGE: ${page}`)
+      const itemsPerPage = 20;
+
+      // Ensure parentId is either a number or a valid string
+      if (parentId === '0') {
+        parentId = null; // Treat string '0' as the number 0
+      } else if (parentId && ObjectId.isValid(parentId)) {
+		parentId = ObjectId(parentId); // Convert to ObjectId if valid
+	  } else {
+		parentId = null;
+	  }
+
+      try {
+        const matchStage = {
+          userId: dbUser._id,
+          ...(parentId !== undefined ? { parentId } : {}),
+        };
+
+		console.log("MATCH STAGE:")
+		console.log(matchStage)
+
+        const dbFiles = await dbClient.db
+          .collection('files')
+          .aggregate([
+            { $match: matchStage },
+            { $skip: page * itemsPerPage },
+            { $limit: itemsPerPage },
+          ])
+          .toArray();
+
+		  console.log(`DB FILES: ${dbFiles}`)
+        // Remove the localPath field and rename _id to id for each file object
+		const sanitizedFiles = dbFiles.map(({ _id, localPath, ...rest }) => ({
+			id: _id,
+			...rest,
+		  }));
+		console.log(`SANITIZED FILES: ${sanitizedFiles}`)
+
+        return response.status(200).json(sanitizedFiles);
+      } catch (error) {
+        console.error(error.message);
+        return HTTPError.internalServerError(response);
+      }
+    } catch (error) {
+      return HTTPError.unauthorized(response);
+    }
   }
 
   /**
