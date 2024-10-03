@@ -10,12 +10,13 @@
  */
 import express from 'express';
 import routes from './routes/index';
+import './worker';
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 // Use the defined routes
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(routes);
 
 // Starts the server
