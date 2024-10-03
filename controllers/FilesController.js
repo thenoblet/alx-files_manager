@@ -1,12 +1,18 @@
 /* eslint-disable */
-import { ObjectId } from 'mongodb';
 import fs from 'fs';
-import UsersController from './UsersController';
+import Bull from 'bull';
+import { ObjectId } from 'mongodb';
+
 import HTTPError from '../utils/httpErrors';
+import UsersController from './UsersController';
+
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
+
 import { generateAuthToken as generateUUID } from '../utils/auth';
 import { cipherTextToPlaintext, saveToLocalFileSystem } from '../utils/misc';
+
+const fileQueue = new Bull('fileQueue');
 
 /**
  * FilesController handles file uploads, folder creation, and file validation.
@@ -229,10 +235,12 @@ static async _publishOrUnpublish(req, res, isPublic) {
 
       const { size } = req.query;
       if (size && ['100', '250', '500'].includes(size)) {
-        localFilePath = `${localFilePath}_{size}`;
+        localFilePath = `${localFilePath}_${size}`;
       }
+
       const mimeType = mime.lookup(dbFile.name) || 'application/octet-stream';
       res.setHeader('Content-Type', mimeType);
+
       fs.readFile(localFilePath, (err, data) => {
         if (err) {
           return HTTPError.notFound(res);
@@ -272,7 +280,7 @@ static async _publishOrUnpublish(req, res, isPublic) {
       return HTTPError.badRequest(response, 'Missing data');
     }
 
-    console.log(`Validating parentId: ${parentId}`);
+    //console.log(`Validating parentId: ${parentId}`);
 
     if (parentId !== '0') {
       if (!ObjectId.isValid(parentId)) {
@@ -339,6 +347,13 @@ static async _publishOrUnpublish(req, res, isPublic) {
         ...fileDocument,
         localPath: filePath,
       });
+
+      if (fileDocument.type === 'image') {
+        await fileQueue.add({
+          userId: fileDocument.userId.toString(),
+          fileId: newFile.insertedId.toString(),
+        });
+      }
 
       return response.status(201).json({
         id: newFile.insertedId,
